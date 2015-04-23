@@ -2,7 +2,7 @@
 
 StOAP is the C++ implementation of a single-threaded in-memory multidimensional OLAP (MOLAP) aggregation processor. It is based on a
 heavily stripped-down mix of open-source code from versions 3.1 and [5.1](http://sourceforge.net/p/palo/code/HEAD/tree/molap/server/5.1/) of the in-memory MOLAP
-server "[Palo](http://en.wikipedia.org/wiki/Palo_%28OLAP_database%29)" by Jedox AG. All features not related to the loading and processing of cube data, such as user management, HTTP request handling, caching, and many more have been
+server *[Palo](http://en.wikipedia.org/wiki/Palo_%28OLAP_database%29)* by Jedox AG. All features not related to the loading and processing of cube data, such as user management, HTTP request handling, caching, and many more have been
 removed. Since StOAP was created solely to compare single-threaded aggregation with its parallel GPU aggregation counterpart in my bachelor thesis, the focus is the aggregation of values along multiple dimensional hierarchies of the cube. There is no functionality for modifying and saving cube values.
 
 ## Features
@@ -27,7 +27,7 @@ Options:
                     a log file called 'StOAP.INFO'.
 ```
 
-The **Data** directory provides an example cube with approximately 1.3M filled base cells.
+The *Data* directory provides an example cube with approximately 1.3M filled base cells.
 
 ### Server Mode
 
@@ -35,21 +35,19 @@ If the argument `-s` was given, one can send request to the named pipe /tmp/stoa
 Requests can be of the following forms (same syntax as the HTTP requests for the Jedox OLAP server):
 
 ```
-/cell/values?paths=<path_1>:<path_2>:...:<path_n>
-```,
-
-where `<path>` is a spatial key with element indices separated by commas, e.g. `0,5,0,2,8,2`.
+/cell/values?paths=(path_1):(path_2):...:(path_n)
+```
+where `(path)` is a spatial key with element indices separated by commas, e.g. `0,5,0,2,8,2`.
 
 ```
-/cell/area?area=<elset_1>,<elset_2>,...,<elset_n>
-```,
-
-where `<elset>` is a set of element indices separated by colons, e.g. `0:1:2:3:4:5`.
+/cell/area?area=(elset_1),(elset_2),...,(elset_n)
+```
+where `(elset)` is a set of element indices separated by colons, e.g. `0:1:2:3:4:5`.
 
 After the request was sent to /tmp/stoap-in, one can fetch the answer from /tmp/stoap-out:
 
 ```
-cat /tmp/stoap-out
+$ cat /tmp/stoap-out
 ```
 
 ### Command-line Interface (CLI)
@@ -57,8 +55,8 @@ cat /tmp/stoap-out
 If the argument `-s` was not given, one will be dropped to a CLI. The following commands are available:
 
 * help
-* getCell `<path>`
-* getArea `{(r1)x(r2)x...x(rn)}`, with `<r>` being comma-separated ranges of element indices
+* getCell `(path)`
+* getArea `{(r1)x(r2)x...x(rn)}`, with `(r)` being comma-separated ranges of element indices
   * Example: getArea `2x0x2-4x5,8-12x7-11` (for a cube with 5 dimensions)
 * info cube
 * info dimensions
