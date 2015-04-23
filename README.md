@@ -69,9 +69,9 @@ After a cell value request was received, the first step is the construction of a
 The following pseudo-code illustrates how the source-based aggregation works:
 
 ```c++
-for(cellIterator srcCell = cube.begin(); srcIt != cube.end(); ++srcIt) {
-	if (!isPartOfAggregation(srcCell)) continue;
-	while(targetExistsFor(srcCell)) {
+for(cellIterator srcCell = cube.begin(); srcCell != cube.end(); ++srcCell) {
+	if (!isPartOfAggregation(srcCell->path)) continue;
+	while(targetExistsFor(srcCell->path)) {
 		int[dimCount] targetPath;
 		for(dimId in dimensions) {
 			targetPath[dimId] = retrieveTargetId(dimId);
