@@ -90,7 +90,7 @@ The major bottleneck for the performance of the aggregation in StOAP is the impl
 * support for insertion, update and lookup
 * space-efficiency, because all data is kept in the RAM
 
-Multiple publications, such as [AH13](http://ojs.academypublisher.com/index.php/jcp/article/view/jcp080511361144), [Böh+11](https://www.google.com/url?q=https://wwwdb.inf.tu-dresden.de/misc/team/boehm/pubs/btw2011.pdf&sa=U&ei=rb04VbLLBsXVapCCgfgK&ved=0CA0QFjAE&client=internal-uds-cse&usg=AFQjCNExLjcYqCN2gIfbR3CHjNEe-UbNkw) and [ZZN14](http://doi.acm.org/10.1145/2588555.2588564), suggest using extensible multidimensional arrays, kD-, prefix-, B + -trees and other sophisticated data structures for the implementation of a multidimensional storage. Despite this, I could not find a documented, open-source and ready-to-use implementation satisfying all requirements
+Multiple publications, such as [AH13](http://ojs.academypublisher.com/index.php/jcp/article/view/jcp080511361144), [Böh+11](https://wwwdb.inf.tu-dresden.de/misc/team/boehm/pubs/btw2011.pdf) and [ZZN14](http://doi.acm.org/10.1145/2588555.2588564), suggest using extensible multidimensional arrays, kD-, prefix-, B + -trees and other sophisticated data structures for the implementation of a multidimensional storage. Despite this, I could not find a documented, open-source and ready-to-use implementation satisfying all requirements
 listed above. As a temporary solution the cube structure was implemented using Google’s dense hash map, which is a part of [SHP12](https://code.google.com/p/sparsehash/). In the code a spatial key is implemented as `std::vector<size_t>` and the hash function of `boost::hash_combine` is used to convert this vector into a hash map key of type `size_t`.
 
 
