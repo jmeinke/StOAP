@@ -98,8 +98,8 @@ listed above. As a temporary solution the cube structure was implemented using G
 
 Install the required build tools and libraries on your system:
 
-* CMake >= 3
-* gcc version >= 4.6
+* CMake >= 2.8
+* gcc version >= 4.4.7
 * Boost libraries 1.56 with the thread, system, regex, and timer components 
 * Google glog
 * Google sparsehash
