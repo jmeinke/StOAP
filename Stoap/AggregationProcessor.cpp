@@ -98,7 +98,7 @@ void AggregationProcessor::aggregate() {
     // therefore better only use it when we can intersect srcArea and filledCells
     for (auto srcIt = srcArea->pathBegin(); srcIt != srcArea->pathEnd(); ++srcIt) {
       try {
-        double* value = storage->getValue(&(*srcIt));
+        double* value = storage->getValue(CellPath(&(*srcIt)).getBinPath());
         if (value == NULL) continue;
 
         aggregateCell(*srcIt, *value);
@@ -114,9 +114,15 @@ void AggregationProcessor::aggregate() {
 
   // iterate entries of the storage map
   for (auto srcIt = storage->m.begin(); srcIt != storage->m.end(); ++srcIt) {
-    // if (getNumTargets(srcIt->first) == 0) continue;
-    if (srcArea->find(srcIt->first) == srcArea->pathEnd()) continue;
-    aggregateCell(srcIt->first, srcIt->second);
+    CellPath currKey(&(srcIt->first));
+    const IdentifiersType* key = currKey.getPathIdentifier();
+
+    // if (getNumTargets(*key) == 0) continue;
+    if (srcArea->find(*key) == srcArea->pathEnd()) continue;
+
+
+    // LOG(INFO) << currKey.toString() << " has " << getNumTargets(*key) << " targets.";
+    aggregateCell(*key, srcIt->second);
   }
 
   LOG(INFO)<< "Aggregation time: " << t.format();
@@ -154,7 +160,7 @@ void AggregationProcessor::aggregateCell(const IdentifiersType &key,
       weight *= currentTarget[multiDims[multiDim]].getWeight();
     }
     // add weight * value
-    resultStorage->addValue(&parentKey, weight * value);
+    resultStorage->addValue(target.getBinPath(), weight * value);
 
     nextParentKey(multiDimCount, changeMultiDim);
   } while (changeMultiDim < multiDimCount);
@@ -238,8 +244,9 @@ void AggregationProcessor::print() {
       ++pathIt) {
 
     CellPath myPath(&(*pathIt));
+
     if (!myPath.isBase()) {
-      double* value = resultStorage->getValue(myPath.getPathIdentifier());
+      double* value = resultStorage->getValue(myPath.getBinPath());
 
       cout << "Cons.\t" << myPath.toString() << ":\t";
       if ((value) == NULL) {
@@ -249,7 +256,7 @@ void AggregationProcessor::print() {
       }
     } else {
       cout << "Base\t" << myPath.toString() << ":\t";
-      double* value = storage->getValue(myPath.getPathIdentifier());
+      double* value = storage->getValue(myPath.getBinPath());
       if ((value) == NULL) {
         cout << "error (cubeStorage empty)" << endl;
       } else {
@@ -273,9 +280,9 @@ string AggregationProcessor::result(const vector<IdentifiersType>& req,
       ss << "1;";  // cell type (numeric)
       double* value;
       if (!myPath.isBase()) {
-        value = resultStorage->getValue(&(*pathIt));
+        value = resultStorage->getValue(myPath.getBinPath());
       } else {
-        value = storage->getValue(&(*pathIt));
+        value = storage->getValue(myPath.getBinPath());
       }
       if ((value) == NULL) {
         ss << "0;;";  // not found
@@ -295,9 +302,9 @@ string AggregationProcessor::result(const vector<IdentifiersType>& req,
       ss << "1;";  // cell type (numeric)
       double* value;
       if (!myPath.isBase()) {
-        value = resultStorage->getValue(&(*pathIt));
+        value = resultStorage->getValue(myPath.getBinPath());
       } else {
-        value = storage->getValue(&(*pathIt));
+        value = storage->getValue(myPath.getBinPath());
       }
       if ((value) == NULL) {
         ss << "0;;";  // not found

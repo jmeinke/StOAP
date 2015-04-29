@@ -40,7 +40,8 @@
 
 // The CellPath constructor is called quite often, so it has to be as fast as possible.
 CellPath::CellPath(const IdentifiersType* identifiers)
-    : pathIdentifiers(*identifiers),
+    : binPath(0),
+      pathIdentifiers(*identifiers),
       base(true) {
 
   const vector<Dimension*>* dimensions = AggrEnv::instance().getCube()->getDimensions();
@@ -57,11 +58,13 @@ CellPath::CellPath(const IdentifiersType* identifiers)
   // convert identifiers into elements
   IdentifiersType::const_iterator identifiersIter = identifiers->begin();
   vector<Dimension*>::const_iterator dimensionIter = dimensions->begin();
-  // PathType::iterator pathIter = pathElements.begin();
 
-  for (; identifiersIter != identifiers->end();
-      ++identifiersIter, ++dimensionIter) {
+  for (; identifiersIter != identifiers->end(); ++identifiersIter, ++dimensionIter) {
     // Dimension* dimension = *dimensionIter;
+
+    // pack element
+    uint64_t elId = static_cast<uint64_t>(*identifiersIter);
+    binPath = binPath | (elId << (*dimensionIter)->dimPos);
 
     // find element from identifier
     Element* element = (*dimensionIter)->lookupElement(*identifiersIter);
@@ -73,13 +76,41 @@ CellPath::CellPath(const IdentifiersType* identifiers)
           stringStream.str());
     }
 
-    // copy values to member variables
-    // *pathIter = element;
+    // compute path type
+    if (element->getElementType() == CONSOLIDATED) {
+      base = false;
+    }
+  }
+}
+
+// The CellPath constructor is called quite often, so it has to be as fast as possible.
+CellPath::CellPath(const uint64_t* binPath)
+    : binPath(0),
+      base(true) {
+
+  const vector<Dimension*>* dimensions = AggrEnv::instance().getCube()->getDimensions();
+  vector<Dimension*>::const_iterator dimensionIter = dimensions->begin();
+
+  // convert path into elements
+  for (; dimensionIter != dimensions->end(); ++dimensionIter) {
+    // unpack element
+
+    uint64_t elementBin = *binPath;
+    uint64_t dimMask = (*dimensionIter)->dimMask;
+    elementBin = elementBin & dimMask;
+    uint32_t dimPos = (*dimensionIter)->dimPos;
+    for (uint32_t i = 0; i < dimPos; ++i)
+      elementBin >>= 1;
+
+    // IdentifierType elId = static_cast<uint32_t>(elementBin);
+    pathIdentifiers.push_back(elementBin);
+
+    // find element from identifier
+    Element* element = (*dimensionIter)->lookupElement(elementBin);
 
     // compute path type
     if (element->getElementType() == CONSOLIDATED) {
       base = false;
-      // break;
     }
   }
 }

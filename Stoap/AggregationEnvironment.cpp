@@ -182,13 +182,36 @@ void AggrEnv::loadDimensions() {
       throw FileFormatException("section 'DIMENSIONS' not found", file);
     }
 
-    // load dimension data into memory
+
+    // load dimension data into memory and update dimPos and dimMask
+    uint32_t dimPos = 0;
     for (auto i = _dimensions.begin(); i != _dimensions.end(); i++) {
       Dimension* dimension = i->second;
 
       if (dimension != 0) {
         dimension->loadDimension(file);
       }
+
+      // we support only on bin for the path at the moment
+      if (dimPos + dimension->dimPos >= 64) {
+        throw ErrorException(ErrorException::ERROR_INTERNAL,
+             "Sorry, your cube dimension is too big. "
+             "Currently StOAP supports only dimension paths which fit into 64bit.");
+      }
+
+      // set correct dimPos
+      if (dimPos == 0) {
+        dimPos = dimension->dimPos;
+        dimension->dimPos = 0;
+      } else {
+        uint32_t tmp = dimension->dimPos;
+        dimension->dimPos = dimPos;
+        dimPos += tmp;
+      }
+
+      // shift the dimension bitmask
+      for (uint32_t i = 0; i < dimension->dimPos; ++i)
+        dimension->dimMask = dimension->dimMask << 1;
     }
   } catch (const FileFormatException& e) {
     LOG(ERROR) << e.getMessage();

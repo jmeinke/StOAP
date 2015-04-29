@@ -34,7 +34,7 @@
 #include "Exceptions/ErrorException.h"
 
 DoubleStorage::DoubleStorage() {
-  const IdentifiersType empty;
+  const uint64_t empty = (0xFFFFFFFFFFFFFFFFULL);
 
   m.set_empty_key(empty);
   // set deleted key must only be used if we want to use erase
@@ -50,6 +50,28 @@ DoubleStorage::~DoubleStorage() {
   m.clear();
 }
 
+double* DoubleStorage::getValue(const uint64_t* binPath) {
+  auto it = m.find(*binPath);
+  if (it == m.end()) {
+    return NULL;
+  }
+  return &it->second;
+}
+
+void DoubleStorage::addValue(const uint64_t* binPath, double value) {
+  auto it = m.find(*binPath);
+  if (it == m.end()) {
+    m[*binPath] = value;
+  } else {
+    m[*binPath] += value;
+  }
+}
+
+void DoubleStorage::setValue(const uint64_t* binPath, double value) {
+  m[*binPath] = value;
+}
+
+/*
 double* DoubleStorage::getValue(const IdentifiersType* ids) {
   auto it = m.find(*ids);
   if (it == m.end()) {
@@ -58,15 +80,7 @@ double* DoubleStorage::getValue(const IdentifiersType* ids) {
   return &it->second;
 }
 
-void DoubleStorage::addValue(const IdentifiersType* ids, double value) {
-  auto it = m.find(*ids);
-  if (it == m.end()) {
-    m[*ids] = value;
-  } else {
-    m[*ids] += value;
-  }
-}
-
 void DoubleStorage::setValue(const IdentifiersType* ids, double value) {
   m[*ids] = value;
 }
+*/

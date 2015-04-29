@@ -31,9 +31,14 @@
 // #include <sparsehash/sparse_hash_map>
 #include <sparsehash/dense_hash_map>
 
+//  #include <ext/pb_ds/assoc_container.hpp>
+//  #include <ext/pb_ds/trie_policy.hpp>
+//  namespace __gnu_pbds;
+
 #include <Olap.h>
 #include "Exceptions/ErrorException.h"
 
+/*
 // template<size_t num>
 struct mapops {
   // this comes from boost::hash_combine and stackoverflow
@@ -47,19 +52,33 @@ struct mapops {
     return seed;
   }
 };
+*/
+
+struct mapops {
+  inline uint64_t operator()(const uint64_t& binPath) const {
+    return binPath;
+  }
+};
 
 class DoubleStorage  {
  public:
   DoubleStorage();
   ~DoubleStorage();
 
+  // this was a red-black tree attempt
+  // tree<uint64_t, double, std::less<uint64_t>, rb_tree_tag, tree_order_statistics_node_update> m;
+
   // map holding the double values
   // google::sparse_hash_map<const IdentifiersType, double, mapops> m;
-  google::dense_hash_map<const IdentifiersType, double, mapops> m;
+  // google::dense_hash_map<const IdentifiersType, double, mapops> m;
+  google::dense_hash_map<const uint64_t, double, mapops> m;
 
-  double* getValue(const IdentifiersType* ids);
-  void addValue(const IdentifiersType* ids, double value);
-  void setValue(const IdentifiersType* ids, double value);
+  // double* getValue(const IdentifiersType* ids);
+  // void setValue(const IdentifiersType* ids, double value);
+
+  double* getValue(const uint64_t* binPath);
+  void addValue(const uint64_t* binPath, double value);
+  void setValue(const uint64_t* binPath, double value);
 };
 
 #endif  // STOAP_OLAP_DOUBLESTORAGE_H_

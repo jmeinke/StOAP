@@ -172,6 +172,17 @@ void Dimension::loadElements(FileReader* file, uint32_t sizeElements) {
   }
 
   numElements = count;
+
+  // calculate the number of bits for bin packing
+  IdentifierType maxId = getMaximalIdentifier();
+  // and create a bitmask
+  dimPos = 0;
+  dimMask = 1;
+  for (uint64_t i = 1; i <= maxId; i<<=1) {
+    dimPos++;
+    dimMask = dimMask | i;
+  }
+  // LOG(ERROR) << "maxId = " << maxId << " dimPos = " << dimPos << "dimMask = " << dimMask;
 }
 
 void Dimension::loadElement(FileReader* file, uint32_t sizeElements) {
@@ -455,7 +466,7 @@ const WeightedSet* Dimension::getBaseElements(Element* parent) {
       throw ErrorException(ErrorException::ERROR_INTERNAL,
                            "Consolidated element in base element set!");
     }
-    // warning: using pushSorted corrupts the set
+    // warning: using pushSorted corrupts the set, which results in wrong aggregation values
     // result->pushSorted((*it).first, (*it).second);
     result->fastAdd((*it).first, (*it).second);
   }

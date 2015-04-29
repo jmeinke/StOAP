@@ -175,7 +175,7 @@ void Cube::loadCubeCells(FileReader* file) {
 
       if (!failed) {
         // filledSources.push_back(ids);
-        storage->setValue(&ids, d);
+        storage->setValue(CellPath(&ids).getBinPath(), d);
       }
 
       file->nextLine();
@@ -188,7 +188,7 @@ void Cube::loadCubeCells(FileReader* file) {
   // filledCellArea = new Area(filledSources);
 
   // attempt to free some memory
-  storage->m.resize(0);
+  // storage->m.resize(0);
 
   // Don't attempt to load the string section, if it exists.
   /*
