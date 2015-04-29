@@ -455,8 +455,9 @@ const WeightedSet* Dimension::getBaseElements(Element* parent) {
       throw ErrorException(ErrorException::ERROR_INTERNAL,
                            "Consolidated element in base element set!");
     }
-    result->pushSorted((*it).first, (*it).second);
-    // result->fastAdd((*it).first, (*it).second);
+    // warning: using pushSorted corrupts the set
+    // result->pushSorted((*it).first, (*it).second);
+    result->fastAdd((*it).first, (*it).second);
   }
   result->consolidate();
 

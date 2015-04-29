@@ -744,8 +744,8 @@ void AggrEnv::printCellValue(const string& path) {
   try {
     CellPath cp(&ids);
     cout << "CellPath is: " << cp.toString() << endl;
-    cout << "Type is: " << cp.getPathType() << endl;
-    cout << "Elements are: " << endl;
+
+    /* cout << "Elements are: " << endl;
 
     const vector<Dimension*> cubeDimensions = *(_cube->getDimensions());
     const PathType* pathElements = cp.getPathElements();
@@ -767,7 +767,7 @@ void AggrEnv::printCellValue(const string& path) {
                << ", weight " << weight << ")." << endl;
         }
       }
-    }
+    } */
 
     CubeArea queryCell(this, _cube, ids);
     AggregationProcessor aggrProc(&queryCell, AggregationProcessor::SUM);

@@ -40,9 +40,7 @@
 
 // The CellPath constructor is called quite often, so it has to be as fast as possible.
 CellPath::CellPath(const IdentifiersType* identifiers)
-    : pathElements(identifiers->size(), 0),
-      pathIdentifiers(*identifiers),
-      pathType(NUMERIC),
+    : pathIdentifiers(*identifiers),
       base(true) {
 
   const vector<Dimension*>* dimensions = AggrEnv::instance().getCube()->getDimensions();
@@ -59,23 +57,29 @@ CellPath::CellPath(const IdentifiersType* identifiers)
   // convert identifiers into elements
   IdentifiersType::const_iterator identifiersIter = identifiers->begin();
   vector<Dimension*>::const_iterator dimensionIter = dimensions->begin();
-  PathType::iterator pathIter = pathElements.begin();
+  // PathType::iterator pathIter = pathElements.begin();
 
   for (; identifiersIter != identifiers->end();
-      ++identifiersIter, ++dimensionIter, ++pathIter) {
-    Dimension* dimension = *dimensionIter;
+      ++identifiersIter, ++dimensionIter) {
+    // Dimension* dimension = *dimensionIter;
 
     // find element from identifier
-    Element* element = dimension->lookupElement(*identifiersIter);
+    Element* element = (*dimensionIter)->lookupElement(*identifiersIter);
+    if (!element) {
+      std::ostringstream stringStream;
+      stringStream << "Element " << (*identifiersIter) << " was not found in dimension " << (*dimensionIter)->getName();
+      throw ErrorException(
+          ErrorException::ERROR_INVALID_COORDINATES,
+          stringStream.str());
+    }
 
     // copy values to member variables
-    *pathIter = element;
+    // *pathIter = element;
 
-    ElementType type = element->getElementType();
     // compute path type
-    if (type == CONSOLIDATED) {
-      pathType = CONSOLIDATED;
+    if (element->getElementType() == CONSOLIDATED) {
       base = false;
+      // break;
     }
   }
 }

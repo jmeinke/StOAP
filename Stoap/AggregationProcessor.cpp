@@ -66,7 +66,7 @@ AggregationProcessor::AggregationProcessor(CubeArea* cArea,
 }
 
 /**
- * @brief this is the place where the aggregation is actually computed
+ * @brief this is the place where the aggregation is performed
  */
 void AggregationProcessor::aggregate() {
   cpu_timer t;
@@ -74,8 +74,8 @@ void AggregationProcessor::aggregate() {
 
   // process all source cells
   if (calcArea->getSize() == 1 && calcArea->isBase(calcArea->pathBegin())) {
-    // we have requested an aggregation of a single base cell
-    LOG(WARNING)<< "Skipping aggregation of a single base cell." << endl;
+    // aggregation of single base cell was requested
+    LOG(WARNING)<< "Skipping aggregation of single base cell." << endl;
     return;
   }
 
@@ -85,14 +85,14 @@ void AggregationProcessor::aggregate() {
   LOG(WARNING)<< "Size: " << calcArea->getSize();
 
   DoubleStorage* storage = calcArea->getCube()->getStorage();
-  // Area* filledCellArea = calcArea->getCube()->getFilledArea();
 
   // iteration through all stored entries only makes sense if the source area is bigger than the stored values
   // otherswise look up the cells which are contained in the source area
-  if (calcArea->getSize() <= 60 &&  // this is the same condition as used by the Jedox OLAP server
+  /*
+  if (calcArea->getSize() <= 60 &&  // same condition as used by the Jedox OLAP server
       srcArea->getSize() <= storage->m.size()) {
     LOG(INFO)<< "Using target-based aggregation!";
-    // this is the target-based aggregation
+
     // iterate through the entries in the source area
     // problem: source area can be very large and there can be a huge amount of non-existent cells
     // therefore better only use it when we can intersect srcArea and filledCells
@@ -107,40 +107,33 @@ void AggregationProcessor::aggregate() {
         return;
       }
     }
-  } else {
-    LOG(INFO) << "Using source-based aggregation!";
-    // this is the source-based aggregation
-    // iterate through all the stored entries in the storage map
-
-    // TODO(jmeinke): improve intersection performance of filled cells and relevant cells
-    /* Area* relevantCells = filledCellArea->intersect(*srcArea);
-     for (auto cellIt = relevantCells->pathBegin(); cellIt != relevantCells->pathEnd(); ++cellIt) {
-     try {
-     aggregateCell(*cellIt, *(storage->getValue(&(*cellIt))));
-     } catch (const ErrorException& e) {
-     LOG(ERROR) << "Error in AggregationProcessor::aggregate: " << e.getMessage();
-     return;
-     }
-     } */
-
-    for (auto srcIt = storage->m.begin(); srcIt != storage->m.end(); ++srcIt) {
-      try {
-        // TODO(jmeinke): this is probably not the fastest way to check
-        // and might be the cause why this is so much slower than the OLAP server
-        // Idea: maintain an area object for the source cells,
-        // then compute the intersection area first, and iterate over it
-        if (srcArea->find(srcIt->first) == srcArea->pathEnd()) continue;
-        //Area testCell(srcIt->first, true);
-        //if (srcArea->intersection(testCell))
-        
-        aggregateCell(srcIt->first, srcIt->second);
-      } catch (const ErrorException& e) {
-        LOG(ERROR) << "Error in AggregationProcessor::aggregate: " << e.getMessage();
-        break;
-      }
-    }
   }
+  */
+
+  LOG(INFO) << "Starting source-based aggregation...";
+
+  // iterate entries of the storage map
+  for (auto srcIt = storage->m.begin(); srcIt != storage->m.end(); ++srcIt) {
+    // if (getNumTargets(srcIt->first) == 0) continue;
+    if (srcArea->find(srcIt->first) == srcArea->pathEnd()) continue;
+    aggregateCell(srcIt->first, srcIt->second);
+  }
+
   LOG(INFO)<< "Aggregation time: " << t.format();
+}
+
+// check if the key has targets in the aggregation map
+size_t AggregationProcessor::getNumTargets(const IdentifiersType &key) {
+  size_t numTargets = 1;
+  IdentifiersType::const_iterator elemId = key.begin();
+  for (size_t dim = 0; dim < calcArea->dimCount(); dim++, ++elemId) {
+    const IdentifierType sourceId = *elemId;
+    if (sourceId < *(parentMaps[dim].getMinBaseId()) || sourceId > *(parentMaps[dim].getMaxBaseId())) {
+      return 0;
+    }
+    numTargets *= parentMaps[dim].getTargets(*elemId).size();
+  }
+  return numTargets;
 }
 
 void AggregationProcessor::aggregateCell(const IdentifiersType &key,
@@ -155,30 +148,14 @@ void AggregationProcessor::aggregateCell(const IdentifiersType &key,
   do {
     CellPath source(&key);
     CellPath target(&parentKey);
-    /* DLOG(WARNING) << "Aggregating source " << source.toString()
-     << " into parent " << target.toString(); */
-
-    // get old value
-    double oldVal = 0.0;
-    double* oldValPointer = resultStorage->getValue(&parentKey);
-    if (oldValPointer != NULL) {
-      oldVal = *oldValPointer;
-    }
 
     double weight = fixedWeight;
-    // add value * weight to parent
     for (size_t multiDim = 0; multiDim < multiDimCount; multiDim++) {
       weight *= currentTarget[multiDims[multiDim]].getWeight();
     }
+    // add weight * value
+    resultStorage->addValue(&parentKey, weight * value);
 
-    if (weight != 1) {
-      // DLOG(WARNING) << "Weight: " << weight;
-      double destVal = oldVal + weight * value;
-      resultStorage->setValue(&parentKey, destVal);
-    } else {
-      double destVal = oldVal + value;
-      resultStorage->setValue(&parentKey, destVal);
-    }
     nextParentKey(multiDimCount, changeMultiDim);
   } while (changeMultiDim < multiDimCount);
 }
@@ -261,7 +238,7 @@ void AggregationProcessor::print() {
       ++pathIt) {
 
     CellPath myPath(&(*pathIt));
-    if (myPath.getPathType() == CONSOLIDATED) {
+    if (!myPath.isBase()) {
       double* value = resultStorage->getValue(myPath.getPathIdentifier());
 
       cout << "Cons.\t" << myPath.toString() << ":\t";
@@ -295,7 +272,7 @@ string AggregationProcessor::result(const vector<IdentifiersType>& req,
 
       ss << "1;";  // cell type (numeric)
       double* value;
-      if (myPath.getPathType() == CONSOLIDATED) {
+      if (!myPath.isBase()) {
         value = resultStorage->getValue(&(*pathIt));
       } else {
         value = storage->getValue(&(*pathIt));
@@ -317,7 +294,7 @@ string AggregationProcessor::result(const vector<IdentifiersType>& req,
 
       ss << "1;";  // cell type (numeric)
       double* value;
-      if (myPath.getPathType() == CONSOLIDATED) {
+      if (!myPath.isBase()) {
         value = resultStorage->getValue(&(*pathIt));
       } else {
         value = storage->getValue(&(*pathIt));

@@ -364,9 +364,8 @@ CubeArea* CubeArea::expandBase(AggregationMaps *aggregationMaps) const {
       IdentifierType eId = *eit;
       Element* element = dimension->lookupElement(eId);
       if (!element) {
-        /* LOG(ERROR) << "CubeArea::expandBase element id: " << *eit
-         << " not found in dimension: " << dimension->getName()
-         ; */
+        LOG(ERROR) << "CubeArea::expandBase element id: " << *eit
+         << " not found in dimension: " << dimension->getName();
         continue;  // possible corrupted journal
       }
 
@@ -390,8 +389,7 @@ CubeArea* CubeArea::expandBase(AggregationMaps *aggregationMaps) const {
         */
         aggregationMaps->at(dim).buildBaseToParentMap(eId, baseE);
       } catch (const ErrorException& e) {
-        LOG(ERROR) << "CubeArea::expandBase exception: " << e.getMessage()
-                      ;
+        // LOG(ERROR) << "CubeArea::expandBase exception: " << e.getMessage();
       }
     }
     result->insert(dim, s);

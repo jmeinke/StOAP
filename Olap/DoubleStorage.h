@@ -58,6 +58,7 @@ class DoubleStorage  {
   google::dense_hash_map<const IdentifiersType, double, mapops> m;
 
   double* getValue(const IdentifiersType* ids);
+  void addValue(const IdentifiersType* ids, double value);
   void setValue(const IdentifiersType* ids, double value);
 };
 

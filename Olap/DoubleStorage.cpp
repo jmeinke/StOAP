@@ -58,6 +58,15 @@ double* DoubleStorage::getValue(const IdentifiersType* ids) {
   return &it->second;
 }
 
+void DoubleStorage::addValue(const IdentifiersType* ids, double value) {
+  auto it = m.find(*ids);
+  if (it == m.end()) {
+    m[*ids] = value;
+  } else {
+    m[*ids] += value;
+  }
+}
+
 void DoubleStorage::setValue(const IdentifiersType* ids, double value) {
   m[*ids] = value;
 }

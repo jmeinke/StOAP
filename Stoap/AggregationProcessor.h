@@ -51,7 +51,7 @@ class AggregationProcessor {
 
  protected:
   void aggregateCell(const IdentifiersType &key, const double value);
-
+  size_t getNumTargets(const IdentifiersType &key);
   void initParentKey(const IdentifiersType &key, size_t &multiDimCount,
                      double *fixedWeight);
   void nextParentKey(size_t multiDimCount, size_t &changeMultiDim);

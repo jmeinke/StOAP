@@ -218,15 +218,14 @@ size_t Cube::sizeMaxCells() {
   return cells;
 }
 
+/*
+ *
 void Cube::getCellValue(CellPath* cellPath, CellValueType& cellValue,
                         bool* found) {
-  ElementType elementType = cellPath->getPathType();
-  cellValue.type = NUMERIC;
-
+  // cellValue.isBase = cellPath->isBase();
   // look up a numeric path in the double storage
-  if (elementType == NUMERIC) {
+  if (cellPath->isBase()) {
     double* value = storage->getValue(cellPath->getPathIdentifier());
-
     if (value == NULL) {
       cellValue.doubleValue = 0.0;
       (*found) = false;
@@ -236,18 +235,15 @@ void Cube::getCellValue(CellPath* cellPath, CellValueType& cellValue,
       (*found) = true;
       return;
     }
-  } else if (elementType == CONSOLIDATED) {
+  } else {
     // look up a consolidation in the double storage
     // do not compute values for an emtpy cube
     throw ParameterException(ErrorException::ERROR_INVALID_COORDINATES,
-                             "consolidated element (NYI)", "elementType",
-                             static_cast<int>(elementType));
-  } else {
-    // unknown element type
-    throw ParameterException(ErrorException::ERROR_INVALID_COORDINATES,
-                             "wrong element type", "elementType",
-                             static_cast<int>(elementType));
+                             "consolidated element (NYI)", "isBaseCell",
+                             static_cast<int>(isBase));
   }
 
-  (*found) = false;
+  // (*found) = false;
 }
+
+*/
