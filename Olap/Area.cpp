@@ -219,14 +219,6 @@ void Area::insert(size_t dimOrdinal, const Set* elems, bool calc) {
   }
 }
 
-Area::ConstElemIter Area::find(size_t dimOrdinal, IdentifierType elemId) const {
-  if (vpath.size()) {
-    return Set::Iterator(vpath[dimOrdinal], vpath[dimOrdinal] != elemId);
-  } else {
-    return area[dimOrdinal]->find(elemId);
-  }
-}
-
 Area::PathIterator Area::find(const IdentifiersType &path) const {
   if (path.size() != area.size()) {
     return pathEnd();
@@ -243,6 +235,22 @@ Area::PathIterator Area::find(const IdentifiersType &path) const {
       p.push_back(it);
     }
     return PathIterator(*this, false, p);
+  }
+}
+
+bool Area::isInArea(const IdentifiersType* path) const {
+  if (path->size() != area.size()) {
+    return false;
+  }
+  if (vpath.size()) {
+    return vpath == *path;
+  } else {
+    for (size_t i = 0; i < area.size(); i++) {
+      if (!area[i]->isInSet((*path)[i])) {
+        return false;
+      }
+    }
+    return true;
   }
 }
 

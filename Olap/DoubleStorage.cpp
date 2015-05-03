@@ -43,7 +43,6 @@ DoubleStorage::DoubleStorage() {
   // m.set_deleted_key(empty);
   m.min_load_factor(0.9);
   m.max_load_factor(1.0);
-  m.clear();
 }
 
 DoubleStorage::~DoubleStorage() {
@@ -59,12 +58,12 @@ double* DoubleStorage::getValue(const IdentifiersType* ids) {
 }
 
 void DoubleStorage::addValue(const IdentifiersType* ids, double value) {
-  auto it = m.find(*ids);
-  if (it == m.end()) {
-    m[*ids] = value;
-  } else {
+  // auto it = m.find(*ids);
+  // if (it == m.end()) {
+  //   m[*ids] = value;
+  // } else {
     m[*ids] += value;
-  }
+  // }
 }
 
 void DoubleStorage::setValue(const IdentifiersType* ids, double value) {

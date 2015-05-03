@@ -275,6 +275,21 @@ Set::Iterator Set::find(IdentifierType id) const {
   return end();
 }
 
+bool Set::isInSet(const IdentifierType id) const {
+  pair<IdentifierType, IdentifierType> val(id, 0);
+  SetType::iterator it = ranges.lower_bound(val);
+  if (it != ranges.end() && it->first == id) {
+    return true;
+  }
+  if (it != ranges.begin()) {
+    --it;
+    if (it->first <= id && it->second >= id) {
+      return true;
+    }
+  }
+  return false;
+}
+
 Set::Iterator Set::lowerBound(IdentifierType id) const {
   pair<IdentifierType, IdentifierType> val(id, 0);
   SetType::iterator it = ranges.lower_bound(val);

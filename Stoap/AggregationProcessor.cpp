@@ -115,7 +115,7 @@ void AggregationProcessor::aggregate() {
   // iterate entries of the storage map
   for (auto srcIt = storage->m.begin(); srcIt != storage->m.end(); ++srcIt) {
     // if (getNumTargets(srcIt->first) == 0) continue;
-    if (srcArea->find(srcIt->first) == srcArea->pathEnd()) continue;
+    if (!srcArea->isInArea(&(srcIt->first))) continue;
     aggregateCell(srcIt->first, srcIt->second);
   }
 
