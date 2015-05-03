@@ -146,9 +146,6 @@ void AggregationProcessor::aggregateCell(const IdentifiersType &key,
   // for each parent cell
   size_t changeMultiDim;
   do {
-    CellPath source(&key);
-    CellPath target(&parentKey);
-
     double weight = fixedWeight;
     for (size_t multiDim = 0; multiDim < multiDimCount; multiDim++) {
       weight *= currentTarget[multiDims[multiDim]].getWeight();

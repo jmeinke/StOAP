@@ -40,7 +40,7 @@
 
 // The CellPath constructor is called quite often, so it has to be as fast as possible.
 CellPath::CellPath(const IdentifiersType* identifiers)
-    : pathIdentifiers(*identifiers),
+    : pathIdentifiers(identifiers),
       base(true) {
 
   const vector<Dimension*>* dimensions = AggrEnv::instance().getCube()->getDimensions();
@@ -87,10 +87,10 @@ CellPath::CellPath(const IdentifiersType* identifiers)
 string CellPath::toString() {
   StringBuffer sb;
 
-  for (size_t i = 0; i < pathIdentifiers.size(); i++) {
+  for (size_t i = 0; i < pathIdentifiers->size(); i++) {
     if (i > 0)
       sb.appendChar(',');
-    sb.appendInteger(pathIdentifiers.at(i));
+    sb.appendInteger(pathIdentifiers->at(i));
   }
 
   string result = sb.c_str();
