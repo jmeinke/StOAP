@@ -120,6 +120,7 @@ class Set {
   Iterator begin() const;
   Iterator end() const;
   Iterator find(IdentifierType id) const;
+  bool isInSet(const IdentifierType id) const;
   Iterator lowerBound(IdentifierType id) const;
   // Use 'it = set.erase(it)' not 'set.erase(it++)' !!!
   Iterator erase(const Iterator &it);

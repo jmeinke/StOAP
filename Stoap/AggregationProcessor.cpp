@@ -118,7 +118,7 @@ void AggregationProcessor::aggregate() {
     const IdentifiersType* key = currKey.getPathIdentifier();
 
     // if (getNumTargets(*key) == 0) continue;
-    if (srcArea->find(*key) == srcArea->pathEnd()) continue;
+    if (!srcArea->isInArea(key)) continue;
 
 
     // LOG(INFO) << currKey.toString() << " has " << getNumTargets(*key) << " targets.";

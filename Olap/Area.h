@@ -85,8 +85,8 @@ class Area {
   PathIterator getIterator(const Area* path) const;
 
   void insert(size_t dimOrdinal, const Set* elems, bool calc = true);
-  ConstElemIter find(size_t dimOrdinal, IdentifierType elemId) const;
   PathIterator find(const IdentifiersType &path) const;
+  bool isInArea(const IdentifiersType* path) const;
   PathIterator lowerBound(const IdentifiersType &path) const;
   size_t dimCount() const;
   size_t elemCount(size_t dimOrdinal) const;

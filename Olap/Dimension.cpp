@@ -406,6 +406,7 @@ IdentifierType Dimension::getMaximalIdentifier() {
   IdentifierType maxId = 0;
   for (vector<Element *>::iterator i = elements.begin(); i != elements.end();
         i++) {
+    if (*i == NULL) continue;
     IdentifierType id = (*i)->getIdentifier();
     // cout << id << " >>> " << maxId << endl;
     if (id > maxId) maxId = id;
